@@ -1,4 +1,4 @@
-serivces:
+services:
   network_holder:
     container_name: gluetun_network
     image: alpine
@@ -14,7 +14,7 @@ serivces:
     cap_add:
       - NET_ADMIN
     build:
-      context: git://github.com/scaxyz:gluetun-gost.git
+      context: https://github.com/scaxyz/gluetun-gost.git#development
       dockerfile: ./DockerfileGluetun
     environment:
       - "GOST_SERVER=172.28.0.2"
