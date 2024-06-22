@@ -1,0 +1,19 @@
+services:
+  some-service:
+    image: alpine
+    command: sleep infinity
+    networks:
+      gluetun_tunnel: null
+  
+  gost-client:
+    image: gost-client:2024-06-22
+    network_mode: "service:some-service"
+    build:
+      context: git://github.com/scaxyz:gluetun-gost.git
+      dockerfile: ./DockerfileGostClient
+    environment:
+      - "GOST_SERVER=172.28.0.2"
+      - "GOST_NET=192.168.123.1/24"
+      - "GOST_CLIENT=192.168.123.2/24" # must be unique for each client, dont forget the /24
+      - "GOST_DEBUG=true" # optional,default: false
+      - "GOST_PORT=8421" # optional, default: 8421, must be the same as on command of the gost server

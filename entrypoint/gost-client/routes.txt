@@ -1,0 +1,4 @@
+ip route del ${GOST_SERVER}/32 dev eth0
+ip route add ${GOST_SERVER}/32 dev eth0
+ip route del default
+ip route add default via ${GOST_CLIENT}

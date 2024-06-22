@@ -3,12 +3,10 @@ package main
 import (
 	_ "embed"
 	"flag"
-	"fmt"
+	"gluetun-gost/internal"
 	"log/slog"
 	"os"
 	"os/exec"
-	"slices"
-	"strings"
 )
 
 //go:embed iptables/post-rules.txt
@@ -30,13 +28,17 @@ func main() {
 		slog.SetLogLoggerLevel(slog.LevelDebug)
 	}
 
+	if !(*execute) {
+		slog.Warn("dry mode, no changes will be made. Use -x to execute")
+	}
+
 	err := savePostRules()
 	if err != nil {
 		slog.Error("failed to save iptables rules", slog.Any("err", err))
 		os.Exit(1)
 	}
 
-	err = adjustRoutes()
+	err = internal.AdjustRoutes(routes, debug, *execute, "GOST_NET", "GOST_SERVER")
 	if err != nil {
 		slog.Error("failed to adjust routes", slog.Any("err", err))
 		os.Exit(1)
@@ -62,28 +64,9 @@ func main() {
 
 }
 
-func mustGetEnv(key string) string {
-	value := os.Getenv(key)
-	if value == "" {
-		panic(key + " not set in env")
-	}
-	return value
-}
-
-func replaceEnv(data string, envs ...string) string {
-	for _, env := range envs {
-		envA := fmt.Sprintf("${%s}", env)
-		envB := fmt.Sprintf("$%s", env)
-		data = strings.ReplaceAll(data, envA, mustGetEnv(env))
-		data = strings.ReplaceAll(data, envB, mustGetEnv(env))
-	}
-
-	return data
-}
-
 func savePostRules() error {
 
-	concretRules := replaceEnv((postRules), "GOST_NET")
+	concretRules := internal.ReplaceEnv((postRules), "GOST_NET")
 
 	if debug {
 		slog.Debug("writing post-rules.txt", slog.String("rules", concretRules))
@@ -101,35 +84,6 @@ func savePostRules() error {
 	err = os.WriteFile("/iptables/post-rules.txt", []byte(concretRules), 0644)
 	if err != nil {
 		return err
-	}
-
-	return nil
-}
-
-func adjustRoutes() error {
-
-	concretRoutes := replaceEnv((routes), "GOST_NET", "GOST_SERVER")
-
-	for _, route := range strings.Split(concretRoutes, "\n") {
-		if route == "" {
-			continue
-		}
-		fields := strings.Fields(route)
-		isDelete := slices.Contains(fields, "del")
-		if debug {
-			slog.Debug("adjusting routes", slog.String("cmd", route))
-		}
-
-		if !(*execute) {
-			continue
-		}
-		cmd := exec.Command(fields[0], fields[1:]...)
-
-		outputs, err := cmd.CombinedOutput()
-		if err != nil && !isDelete {
-			return fmt.Errorf("failed to execute %s err='%w' output='%s'", route, err, string(outputs))
-		}
-
 	}
 
 	return nil

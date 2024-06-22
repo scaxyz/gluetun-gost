@@ -1,5 +1,6 @@
-services:
+serivces:
   network_holder:
+    container_name: gluetun_network
     image: alpine
     command: sleep infinity
     networks:
@@ -13,15 +14,14 @@ services:
     cap_add:
       - NET_ADMIN
     build:
-      context: .
+      context: git://github.com/scaxyz:gluetun-gost.git
       dockerfile: ./DockerfileGluetun
     environment:
       - "GOST_SERVER=172.28.0.2"
-      - "GG_DEBUG=true"
+      - "GOST_NETWORK=192.168.123.0/24"
     depends_on:
       - gost-server
       - network_holder
-    # entrypoint: [ "ip", "a" ]
 
   gost-server:
     image: gogost/gost
@@ -33,28 +33,11 @@ services:
       - NET_ADMIN
     depends_on:
       - network_holder
-  
-
-  gost-client:
-    image: gost-client:2024-06-22
-    devices: 
-      - /dev/net/tun
-    cap_add:
-      - NET_ADMIN
-    build:
-      context: .
-      dockerfile: ./DockerfileGostClient
-    environment:
-      - "GOST_SERVER=172.28.0.2"
-      - "GOST_CLIENT=192.168.123.2/24"
-      - "GOST_NET=192.168.123.0/24"
-      - "GC_DEBUG=true"
-    networks:
-      - tunnel
-
+    
 networks:
+  default: {}
   tunnel:
-    internal: true
+    driver: bridge
     ipam:
       config:
-        - subnet: 172.28.0.0/16
+        - subnet: "172.28.0.0/16"

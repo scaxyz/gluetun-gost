@@ -1,6 +1,7 @@
 FROM golang:1.22-alpine AS builder
 
 COPY ./entrypoint /workingdir/entrypoint
+COPY ./internal /workingdir/internal
 COPY ./go.mod /workingdir
 
 WORKDIR /workingdir
