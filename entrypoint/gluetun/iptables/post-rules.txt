@@ -1,4 +1,4 @@
 iptables -t nat -A POSTROUTING -s ${GOST_NET} ! -o gost0 -j MASQUERADE
-iptables -A FORWARD -i gost0 ! -o gost0 -j ACCEPT
+iptables -A FORWARD -i gost0  -o tun0 -j ACCEPT
 iptables -A FORWARD -o gost0 -j ACCEPT
 iptables -A OUTPUT -o gost0 -j ACCEPT
