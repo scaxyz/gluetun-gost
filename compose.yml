@@ -2,6 +2,10 @@ services:
   network_holder:
     image: alpine
     command: sleep infinity
+    devices: 
+      - /dev/net/tun
+    cap_add:
+      - NET_ADMIN
     networks:
       default: null
       tunnel:
@@ -12,6 +16,8 @@ services:
     network_mode: "service:network_holder"
     cap_add:
       - NET_ADMIN
+    devices: 
+      - /dev/net/tun
     build:
       context: .
       dockerfile: ./DockerfileGluetun

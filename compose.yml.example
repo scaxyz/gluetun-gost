@@ -3,6 +3,10 @@ services:
     container_name: gluetun_network
     image: alpine
     command: sleep infinity
+    devices: 
+      - /dev/net/tun
+    cap_add:
+      - NET_ADMIN
     networks:
       default: null
       tunnel:
@@ -11,6 +15,8 @@ services:
   gluetun:
     image: gluetun-gost:2024-06-22
     network_mode: "service:network_holder"
+    devices: 
+      - /dev/net/tun
     cap_add:
       - NET_ADMIN
     build:
