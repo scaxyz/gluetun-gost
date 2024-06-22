@@ -17,8 +17,8 @@ services:
       context: https://github.com/scaxyz/gluetun-gost.git#development
       dockerfile: ./DockerfileGluetun
     environment:
-      - "GOST_SERVER=172.28.0.2"
-      - "GOST_NETWORK=192.168.123.0/24"
+      - "GOST_SERVER=192.168.123.1" # must be the ip of the gost server in the gost network
+      - "GOST_NETWORK=192.168.123.0/24" 
     depends_on:
       - gost-server
       - network_holder

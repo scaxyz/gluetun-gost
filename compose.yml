@@ -16,7 +16,7 @@ services:
       context: .
       dockerfile: ./DockerfileGluetun
     environment:
-      - "GOST_SERVER=172.28.0.2"
+      - "GOST_SERVER=192.168.123.1"
       - "GG_DEBUG=true"
     depends_on:
       - gost-server
