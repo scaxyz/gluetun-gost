@@ -1,0 +1,15 @@
+FROM golang:1.22-alpine AS builder
+
+COPY ./entrypoint /workingdir/entrypoint
+COPY ./go.mod /workingdir
+
+WORKDIR /workingdir
+
+RUN go build -o /gluetun-gost ./entrypoint/gluetun
+
+FROM qmcgaw/gluetun 
+ENV GOST_NET="192.168.123.0/24"
+
+COPY --from=builder /gluetun-gost /gluetun-gost-entrypoint
+
+ENTRYPOINT ["/gluetun-gost-entrypoint", "-x"]

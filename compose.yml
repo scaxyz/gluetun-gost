@@ -1,0 +1,49 @@
+services:
+  network_holder:
+    image: alpine
+    command: sleep infinity
+    networks:
+      default: null
+      tunnel:
+        ipv4_address: "172.28.0.2"
+  
+  gluetun:
+    image: gluetun-gost:2024-06-22
+    network_mode: "service:network_holder"
+    cap_add:
+      - NET_ADMIN
+    build:
+      context: .
+      dockerfile: ./DockerfileGluetun
+    environment:
+      - "GOST_SERVER=172.28.0.2"
+      - "GG_DEBUG=true"
+    depends_on:
+      - gost-server
+      - network_holder
+    # entrypoint: [ "ip", "a" ]
+
+  gost-server:
+    image: gogost/gost
+    network_mode: "service:network_holder"
+    command: "-L='tun://:8421?net=192.168.123.1/24&name=gost0'"
+    devices: 
+      - /dev/net/tun
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - network_holder
+  
+
+  gost-client:
+    image: gost-client:2024-06-22
+    build:
+      context: .
+      dockerfile: ./DockerfileGostClient
+
+networks:
+  tunnel:
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16

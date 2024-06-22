@@ -1,0 +1,3 @@
+ip route replace ${GOST_NET} via ${GOST_SERVER} table 199
+ip rule del to ${GOST_NET} lookup 199 pref 99
+ip rule add to ${GOST_NET} lookup 199 pref 99

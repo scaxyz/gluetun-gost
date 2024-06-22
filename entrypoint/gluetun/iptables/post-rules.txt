@@ -1,0 +1,4 @@
+iptables-legacy -t nat -A POSTROUTING -s ${GOST_NET} ! -o gost0 -j MASQUERADE
+iptables-legacy -A FORWARD -i gost0 ! -o gost0 -j ACCEPT
+iptables-legacy -A FORWARD -o gost0 -j ACCEPT
+iptables-legacy -A OUTPUT -o gost0 -j ACCEPT
