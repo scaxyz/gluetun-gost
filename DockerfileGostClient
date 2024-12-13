@@ -1,0 +1,15 @@
+FROM golang:1.22-alpine AS builder
+
+COPY ./entrypoint /workingdir/entrypoint
+COPY ./internal /workingdir/internal
+COPY ./go.mod /workingdir
+
+WORKDIR /workingdir
+
+RUN go build -o /gost-client ./entrypoint/gost-client/
+
+FROM gogost/gost
+ENV GOST_PORT=8421
+
+COPY --from=builder /gost-client /usr/bin/gost-client
+ENTRYPOINT ["/usr/bin/gost-client", "-x"]

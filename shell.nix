@@ -1,0 +1,1 @@
+(builtins.getFlake ("path://" + toString ./.)).devShells.${builtins.currentSystem}.default
